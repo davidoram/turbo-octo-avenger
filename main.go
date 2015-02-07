@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/davidoram/turbo-octo-avenger/middleware"
 	"github.com/davidoram/turbo-octo-avenger/services"
+	"github.com/gorilla/context"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 	"log"
@@ -28,7 +29,10 @@ func main() {
 func register(service services.Service, router *httprouter.Router) {
 
 	myHandler := http.HandlerFunc(service.List)
-	listChain := alice.New(middleware.BasicLog).Then(myHandler)
+	listChain := alice.New(
+		context.ClearHandler,
+		middleware.RequestId,
+		middleware.BasicLog).Then(myHandler)
 	path := fmt.Sprintf("/v%d/%s", service.Version(), service.Name())
 	router.Handler("GET", path, listChain)
 

@@ -47,6 +47,7 @@ Also these components are used:
 # Resources
 
 - http://www.alexedwards.net/blog/making-and-using-middleware
+- http://www.gorillatoolkit.org/pkg/context
 - https://justinas.org/writing-http-middleware-in-go/
 - https://www.consul.io/
 - http://syslog-ng.org/
