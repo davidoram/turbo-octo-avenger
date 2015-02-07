@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/julienschmidt/httprouter"
+	//"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
@@ -15,8 +15,9 @@ type Service interface {
 	Name() string
 	Version() int
 
-	List(w http.ResponseWriter, r *http.Request, p httprouter.Params)
-	Show(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	List(w http.ResponseWriter, r *http.Request)
+	// List(w http.ResponseWriter, r *http.Request)
+	// Show(w http.ResponseWriter, r *http.Request)
 	//Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	//Update(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	//Delete(w http.ResponseWriter, r *http.Request, _ httprouter.Params)

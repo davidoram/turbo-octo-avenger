@@ -2,7 +2,7 @@ package services
 
 import (
 	"fmt"
-	"github.com/julienschmidt/httprouter"
+	//"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
@@ -22,10 +22,25 @@ func (s *PingService) Version() int {
 	return 1
 }
 
-func (s *PingService) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (s *PingService) List(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "{ 'data': [1,2,3] }")
 }
 
-func (s *PingService) Show(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	fmt.Fprint(w, "{ 'id': %v  }", p.ByName("id"))
-}
+// type PingService struct {
+// }
+//
+// func (s *PingService) Name() string {
+// 	return "ping"
+// }
+//
+// func (s *PingService) Version() int {
+// 	return 1
+// }
+
+// func (s *PingService) List(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprint(w, "{ 'data': [1,2,3] }")
+// }
+//
+// func (s *PingService) Show(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprint(w, "{ 'id': 1  }")
+// }
