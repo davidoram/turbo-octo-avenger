@@ -12,7 +12,10 @@ func RequestTimer(next http.Handler) http.Handler {
 		context := context.Get(r, RequestContextKey).(RequestContext)
 
 		context.startTime = time.Now()
-		defer func() { context.endTime = time.Now() }()
+		defer func() {
+			context.endTime = time.Now()
+			context.duration = context.endTime.Sub(context.startTime)
+		}()
 
 		next.ServeHTTP(w, r)
 	})

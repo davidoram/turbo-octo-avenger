@@ -17,8 +17,11 @@ const RequestContextKey key = 0
 
 type RequestContext struct {
 	requestId *uuid.UUID // UUID uniuqe to this request
-	startTime time.Time  // When the request started
-	endTime   time.Time  // When the request finished
+
+	startTime time.Time     // When the request started
+	endTime   time.Time     // When the request finished
+	duration  time.Duration // Request duration
+
 }
 
 // Creates the initial values in the context
