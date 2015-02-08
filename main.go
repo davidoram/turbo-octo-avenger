@@ -31,7 +31,8 @@ func register(service services.Service, router *httprouter.Router) {
 	myHandler := http.HandlerFunc(service.List)
 	listChain := alice.New(
 		context.ClearHandler,
-		middleware.RequestId,
+		middleware.ContextSetup,
+		middleware.RequestTimer,
 		middleware.BasicLog).Then(myHandler)
 	path := fmt.Sprintf("/v%d/%s", service.Version(), service.Name())
 	router.Handler("GET", path, listChain)
