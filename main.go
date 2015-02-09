@@ -8,13 +8,18 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 	"log"
+	"log/syslog"
 	"net/http"
 )
 
-// Any struct that is marshalled to/from JSON
-type JSONStruct struct{}
+const (
+	AppLogTag = "turbo-octo-avenger"
+)
 
 func main() {
+
+	configureLogToSyslog()
+
 	router := httprouter.New()
 
 	services := []services.Service{new(services.PingService)}
@@ -24,6 +29,16 @@ func main() {
 	}
 
 	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
+// Redirect the global logger to use syslog
+func configureLogToSyslog() {
+	// Configure logger to write to the syslog
+	logwriter, e := syslog.New(syslog.LOG_NOTICE, AppLogTag)
+	if e != nil {
+		panic(e)
+	}
+	log.SetOutput(logwriter)
 }
 
 func register(service services.Service, router *httprouter.Router) {
