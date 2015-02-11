@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	//"github.com/gorilla/context"
+	"github.com/davidoram/turbo-octo-avenger/context"
 	"net/http"
 	"time"
 )
@@ -13,11 +13,11 @@ import (
 //
 func RequestTimer(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		SetStartTime(r, time.Now())
+		context.SetStartTime(r, time.Now())
 		defer func() {
 			t := time.Now()
-			SetEndTime(r, t)
-			SetDuration(r, t.Sub(MustGetStartTime(r)))
+			context.SetEndTime(r, t)
+			context.SetDuration(r, t.Sub(context.MustGetStartTime(r)))
 		}()
 
 		next.ServeHTTP(w, r)

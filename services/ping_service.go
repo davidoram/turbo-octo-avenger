@@ -2,7 +2,8 @@ package services
 
 import (
 	"fmt"
-	"github.com/davidoram/turbo-octo-avenger/middleware"
+	"github.com/davidoram/turbo-octo-avenger/context"
+	//	"github.com/davidoram/turbo-octo-avenger/middleware"
 	//	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
@@ -31,16 +32,16 @@ func (s *PingService) Version() int {
 
 func (s *PingService) List(w http.ResponseWriter, r *http.Request) {
 
-	log.Printf("RequestId=%v Ping::List. db=%v", middleware.MustGetRequestId(r), middleware.MustGetDB(r))
+	log.Printf("RequestId=%v Ping::List. db=%v", context.MustGetRequestId(r), context.MustGetDB(r))
 
 	var p PingRow
-	db := middleware.MustGetDB(r)
+	db := context.MustGetDB(r)
 	err := db.QueryRowx("SELECT message FROM ping LIMIT 1").StructScan(&p)
 	if err != nil {
-		log.Printf("RequestId=%v Ping::List err %v", middleware.MustGetRequestId(r), err)
+		log.Printf("RequestId=%v Ping::List err %v", context.MustGetRequestId(r), err)
 		panic(err)
 	}
-	log.Printf("RequestId=%v Ping::List query ok", middleware.MustGetRequestId(r))
+	log.Printf("RequestId=%v Ping::List query ok", context.MustGetRequestId(r))
 
 	fmt.Fprintf(w, "{ 'pong': '%v'  }", p.Message)
 }

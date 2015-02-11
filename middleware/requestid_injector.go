@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/davidoram/turbo-octo-avenger/context"
 	"github.com/nu7hatch/gouuid"
 	"net/http"
 )
@@ -17,7 +18,7 @@ func RequestIDInjector(next http.Handler) http.Handler {
 		if err != nil {
 			panic(err)
 		}
-		SetRequestID(r, u4)
+		context.SetRequestID(r, u4)
 
 		next.ServeHTTP(w, r)
 	})
