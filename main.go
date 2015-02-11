@@ -5,8 +5,10 @@ import (
 	"github.com/davidoram/turbo-octo-avenger/middleware"
 	"github.com/davidoram/turbo-octo-avenger/services"
 	"github.com/gorilla/context"
+	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
+	_ "github.com/lib/pq"
 	"log"
 	"log/syslog"
 	"net/http"
@@ -43,12 +45,20 @@ func configureLogToSyslog() {
 
 func register(service services.Service, router *httprouter.Router) {
 
+	db1 := sqlx.MustConnect("postgres", "postgres://davidoram:@localhost/turbo-octo-avenger-development?sslmode=disable")
+	e := db1.Ping()
+	if e != nil {
+		panic(e)
+	}
+	log.Printf("Database connection setup ok : %v", db1)
+
 	myHandler := http.HandlerFunc(service.List)
 	listChain := alice.New(
 		context.ClearHandler,
 		middleware.ContextSetup,
 		middleware.BasicLog,
-		middleware.RequestTimer).Then(myHandler)
+		middleware.RequestTimer,
+		middleware.DatabaseConnection(db1)).Then(myHandler)
 	path := fmt.Sprintf("/v%d/%s", service.Version(), service.Name())
 	router.Handler("GET", path, listChain)
 

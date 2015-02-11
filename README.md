@@ -53,6 +53,7 @@ Also these components are used:
 - http://syslog-ng.org/
 - http://golang.org
 - https://github.com/julienschmidt/go-http-routing-benchmark
+- http://jmoiron.github.io/sqlx/
 - https://github.com/xeipuuv/gojsonschema
 # https://justinas.org/alice-painless-middleware-chaining-for-go/
 # 
