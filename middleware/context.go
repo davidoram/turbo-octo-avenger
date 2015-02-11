@@ -91,17 +91,3 @@ func GetDB(r *http.Request) *sqlx.DB {
 func SetDB(r *http.Request, val *sqlx.DB) {
 	context.Set(r, DBKey, val)
 }
-
-// Creates the initial values in the context
-func ContextSetup(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		u4, err := uuid.NewV4()
-		if err != nil {
-			panic(err)
-		}
-		SetRequestID(r, u4)
-
-		next.ServeHTTP(w, r)
-	})
-}

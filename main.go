@@ -55,10 +55,11 @@ func register(service services.Service, router *httprouter.Router) {
 	myHandler := http.HandlerFunc(service.List)
 	listChain := alice.New(
 		context.ClearHandler,
-		middleware.ContextSetup,
-		middleware.BasicLog,
+		middleware.PanicHandler,
+		middleware.RequestIDInjector,
+		middleware.BasicLogger,
 		middleware.RequestTimer,
-		middleware.DatabaseConnection(db1)).Then(myHandler)
+		middleware.DatabaseConnectionInjector(db1)).Then(myHandler)
 	path := fmt.Sprintf("/v%d/%s", service.Version(), service.Name())
 	router.Handler("GET", path, listChain)
 
