@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/davidoram/turbo-octo-avenger/ipc"
 	"github.com/davidoram/turbo-octo-avenger/middleware"
 	"github.com/davidoram/turbo-octo-avenger/services"
 	"github.com/gorilla/context"
@@ -24,7 +25,7 @@ func main() {
 
 	router := httprouter.New()
 
-	services := []services.Service{new(services.PingService)}
+	services := []ipc.Service{new(services.PingService)}
 
 	for _, service := range services {
 		register(service, router)
@@ -43,7 +44,7 @@ func configureLogToSyslog() {
 	log.SetOutput(logwriter)
 }
 
-func register(service services.Service, router *httprouter.Router) {
+func register(service ipc.Service, router *httprouter.Router) {
 
 	db1 := sqlx.MustConnect("postgres", "postgres://davidoram:@localhost/turbo-octo-avenger-development?sslmode=disable")
 	e := db1.Ping()
@@ -52,7 +53,7 @@ func register(service services.Service, router *httprouter.Router) {
 	}
 	log.Printf("Database connection setup ok : %v", db1)
 
-	myHandler := http.HandlerFunc(service.List)
+	myHandler := middleware.ServiceCaller(service, ipc.ListMethod)
 	listChain := alice.New(
 		context.ClearHandler,
 		middleware.PanicHandler,

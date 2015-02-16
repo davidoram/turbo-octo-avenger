@@ -1,12 +1,10 @@
 package services
 
 import (
-	"fmt"
-	"github.com/davidoram/turbo-octo-avenger/context"
-	//	"github.com/davidoram/turbo-octo-avenger/middleware"
-	//	"github.com/jmoiron/sqlx"
+	"github.com/davidoram/turbo-octo-avenger/ipc"
+	"github.com/jmoiron/sqlx"
+	"github.com/nu7hatch/gouuid"
 	"log"
-	"net/http"
 )
 
 // -----------------------------------------------------------------------------
@@ -30,20 +28,19 @@ func (s *PingService) Version() int {
 	return 1
 }
 
-func (s *PingService) List(w http.ResponseWriter, r *http.Request) {
+func (s *PingService) List(requestId *uuid.UUID, db *sqlx.DB, rv *ipc.ReturnValue) error {
 
-	log.Printf("RequestId=%v Ping::List. db=%v", context.MustGetRequestId(r), context.MustGetDB(r))
+	log.Printf("RequestId=%v Ping::List. db=%v", requestId, db)
 
 	var p PingRow
-	db := context.MustGetDB(r)
 	err := db.QueryRowx("SELECT message FROM ping LIMIT 1").StructScan(&p)
 	if err != nil {
-		log.Printf("RequestId=%v Ping::List err %v", context.MustGetRequestId(r), err)
-		panic(err)
+		return err
 	}
-	log.Printf("RequestId=%v Ping::List query ok", context.MustGetRequestId(r))
-
-	fmt.Fprintf(w, "{ 'pong': '%v'  }", p.Message)
+	log.Printf("RequestId=%v Ping::List query ok", requestId)
+	r := ipc.PingResult{p.Message}
+	rv.Data = append(rv.Data, &r)
+	return nil
 }
 
 // type PingService struct {

@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"fmt"
-	"github.com/davidoram/turbo-octo-avenger/context"
-	"log"
+	// "github.com/davidoram/turbo-octo-avenger/ipc"
 	"net/http"
 )
 
@@ -15,9 +13,8 @@ func PanicHandler(chain http.Handler) http.Handler {
 	var f http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if e := recover(); e != nil {
-				log.Printf("level=ERROR RequestId=%v, Panic=%v", context.MustGetRequestId(r), e)
-				w.WriteHeader(500)
-				fmt.Fprintf(w, "{ 'error': '%v'  }", e)
+				// TODO Add logging
+				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}()
 		chain.ServeHTTP(w, r)
