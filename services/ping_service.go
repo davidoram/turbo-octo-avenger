@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"fmt"
+	_ "fmt"
 	"github.com/davidoram/turbo-octo-avenger/context"
 	"github.com/davidoram/turbo-octo-avenger/util"
 	"github.com/jmoiron/sqlx"
@@ -13,8 +13,9 @@ import (
 
 // Generic Response
 type APIResponse struct {
-	RequestID *uuid.UUID
-	// Other parameters - perhaps errors & codes?
+	RequestID  *uuid.UUID
+	HTTPStatus int
+	Errors     []error
 }
 
 // Generic parameters passed to all services
@@ -86,18 +87,17 @@ func PingServiceListHandler() http.Handler {
 	var f http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("RequestID=%v PingServiceListHandler", context.MustGetRequestId(r))
 		var params = ListParams{}
-		var response = PingResponse{APIResponse{context.MustGetRequestId(r)}, ""}
+		var response = NewPingResponse(context.MustGetRequestId(r))
 		var err = ParseListParameters(r, &params)
 		if err == nil {
-			err = List(&params, &response)
-		}
-		if err == nil {
-			w.WriteHeader(http.StatusOK)
-			w.Write(util.MustMarshalJSON(response))
+			List(&params, response)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "{ \"error\": \"%v\"}", err.Error())
+			response.Errors = append(response.Errors, err)
+			response.HTTPStatus = http.StatusBadRequest
 		}
+		w.WriteHeader(response.HTTPStatus)
+		w.Write(util.MustMarshalJSON(response))
+
 	}
 	return f
 }
@@ -112,21 +112,32 @@ type PingResponse struct {
 	Message string
 }
 
+func NewPingResponse(requestID *uuid.UUID) *PingResponse {
+	return &PingResponse{
+		APIResponse: APIResponse{
+			RequestID:  requestID,
+			HTTPStatus: http.StatusOK,
+			Errors:     make([]error, 0)},
+		Message: ""}
+}
+
 // Row in ping table
 type PingRow struct {
 	Message string
 }
 
-func List(params *ListParams, response *PingResponse) error {
+func List(params *ListParams, response *PingResponse) {
 
 	db := connect()
 	log.Printf("RequestID=%v Ping::List. db=%v", params.RequestID, db)
 	var row PingRow
 	err := db.QueryRowx("SELECT message FROM ping LIMIT 1").StructScan(&row)
 	if err != nil {
-		return err
+		log.Printf("RequestID=%v Ping::List query error: %v", params.RequestID, err)
+		response.Errors = append(response.Errors, err)
+		response.HTTPStatus = http.StatusInternalServerError
+		return
 	}
 	log.Printf("RequestID=%v Ping::List query ok", params.RequestID)
 	response.Message = row.Message
-	return nil
 }
