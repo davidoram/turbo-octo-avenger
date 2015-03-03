@@ -1,12 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"github.com/davidoram/turbo-octo-avenger/ipc"
+	_ "fmt"
 	"github.com/davidoram/turbo-octo-avenger/middleware"
 	"github.com/davidoram/turbo-octo-avenger/services"
 	"github.com/gorilla/context"
-	"github.com/jmoiron/sqlx"
+	_ "github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 	_ "github.com/lib/pq"
@@ -21,17 +20,14 @@ const (
 
 func main() {
 
-	configureLogToSyslog()
+	//configureLogToSyslog()
 
 	router := httprouter.New()
 
-	services := []ipc.Service{new(services.PingService)}
-
-	for _, service := range services {
-		register(service, router)
-	}
-
-	log.Fatal(http.ListenAndServe(":8080", router))
+	registerPingService(router)
+	port := ":8080"
+	log.Printf("Listening on %v", port)
+	log.Fatal(http.ListenAndServe(port, router))
 }
 
 // Redirect the global logger to use syslog
@@ -44,27 +40,16 @@ func configureLogToSyslog() {
 	log.SetOutput(logwriter)
 }
 
-func register(service ipc.Service, router *httprouter.Router) {
+func registerPingService(router *httprouter.Router) {
 
-	db1 := sqlx.MustConnect("postgres", "postgres://davidoram:@localhost/turbo-octo-avenger-development?sslmode=disable")
-	e := db1.Ping()
-	if e != nil {
-		panic(e)
-	}
-	log.Printf("Database connection setup ok : %v", db1)
-
-	myHandler := middleware.ServiceCaller(service, ipc.ListMethod)
+	verb := "GET"
+	path := "/v1/ping"
 	listChain := alice.New(
 		context.ClearHandler,
 		middleware.PanicHandler,
 		middleware.RequestIDInjector,
 		middleware.BasicLogger,
-		middleware.RequestTimer,
-		middleware.DatabaseConnectionInjector(db1)).Then(myHandler)
-	path := fmt.Sprintf("/v%d/%s", service.Version(), service.Name())
-	router.Handler("GET", path, listChain)
-
-	// showApppHandler := http.HandlerFunc(service.Show)
-	// showChain := alice.New(middleware.BasicLog).Then(showAppHandler)
-	// router.GET(fmt.Sprintf("/v%d/%s/:id", service.Version(), service.Name()), showChain)
+		middleware.RequestTimer).Then(services.PingServiceListHandler())
+	router.Handler(verb, path, listChain)
+	log.Printf("%s %s", verb, path)
 }

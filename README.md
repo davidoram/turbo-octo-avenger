@@ -1,6 +1,11 @@
 # turbo-octo-avenger
 Web services in Go
 
+# TODO 
+
+- List operation parameters - parse URL + Headers
+- Implement the other Rest operations for Ping
+
 # Goals
 
 - Provide a standardised REST API to hang new services off. The system standardises
