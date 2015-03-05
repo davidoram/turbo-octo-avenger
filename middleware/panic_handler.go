@@ -6,8 +6,7 @@ import (
 )
 
 //
-// Create a handler to handle panics
-// When a panic occurs, log an error, return 500 with the panic data
+// Handle panics, logs the error, return 500
 //
 func PanicHandler(chain http.Handler) http.Handler {
 	var f http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {

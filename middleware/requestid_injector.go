@@ -18,7 +18,7 @@ func RequestIDInjector(next http.Handler) http.Handler {
 		if err != nil {
 			panic(err)
 		}
-		context.SetRequestID(r, u4)
+		context.SetRequestID(r, u4.String())
 
 		next.ServeHTTP(w, r)
 	})

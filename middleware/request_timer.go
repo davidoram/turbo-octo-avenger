@@ -2,22 +2,20 @@ package middleware
 
 import (
 	"github.com/davidoram/turbo-octo-avenger/context"
+	"log"
 	"net/http"
 	"time"
 )
 
 //
-// RequestTimer sets the StartTime, EndTime, and Duration in the context
-// The StartTime is set before making calls to other middleare, and the EndTime
-// and Duration are set when all the Middleware returns
+// RequestTimer logs the duration of each call
 //
 func RequestTimer(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		context.SetStartTime(r, time.Now())
+		start := time.Now()
 		defer func() {
-			t := time.Now()
-			context.SetEndTime(r, t)
-			context.SetDuration(r, t.Sub(context.MustGetStartTime(r)))
+			millis := int64((time.Now().Sub(start)) / time.Millisecond)
+			log.Printf("RequestId=%v, Duration_ms=%v\n", context.MustGetRequestId(r), millis)
 		}()
 
 		next.ServeHTTP(w, r)

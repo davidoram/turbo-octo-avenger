@@ -13,15 +13,26 @@ import (
 
 // Generic Response
 type APIResponse struct {
-	RequestID  *uuid.UUID
+	RequestID  string // uuid as string
 	HTTPStatus int
-	Errors     []error
+	Errors     []Error
 }
+
+type Error struct {
+	Code    string
+	Message string
+}
+
+const (
+	ErrorCodeNotFound            = "not.found"             // 404 StatusNotFound
+	ErrorCodeBadRequest          = "bad.request"           // 400 StatusBadRequest
+	ErrorCodeInternalServerError = "internal.server.error" // 500 StatusInternalServerError
+)
 
 // Generic parameters passed to all services
 type APIParams struct {
-	RequestID *uuid.UUID
-	APIKey    *uuid.UUID
+	RequestID string // uuid as string
+	APIKey    string // uuid as string
 	// Other parameter - perhaps an Access & Authorisation data?
 }
 
@@ -50,8 +61,8 @@ type ListParams struct {
 func ParseAPIParameters(r *http.Request, p *APIParams) error {
 	log.Printf("RequestID=%v ParseAPIParameters %v", context.MustGetRequestId(r), r.Header)
 	if apiKey, present := r.Header["X-Apikey"]; present {
-		var err error
-		if p.APIKey, err = uuid.ParseHex(apiKey[0]); err == nil {
+		if key, err := uuid.ParseHex(apiKey[0]); err == nil {
+			p.APIKey = key.String()
 			return nil
 		} else {
 			return errors.New("Invalid X-Apikey header value")
@@ -92,7 +103,9 @@ func PingServiceListHandler() http.Handler {
 		if err == nil {
 			List(&params, response)
 		} else {
-			response.Errors = append(response.Errors, err)
+			log.Printf("RequestID=%v adding error. %v", context.MustGetRequestId(r), len(response.Errors))
+			response.Errors = append(response.Errors, Error{ErrorCodeBadRequest, err.Error()})
+			log.Printf("RequestID=%v added error. %v %v", context.MustGetRequestId(r), len(response.Errors), response.Errors)
 			response.HTTPStatus = http.StatusBadRequest
 		}
 		w.WriteHeader(response.HTTPStatus)
@@ -112,12 +125,12 @@ type PingResponse struct {
 	Message string
 }
 
-func NewPingResponse(requestID *uuid.UUID) *PingResponse {
+func NewPingResponse(requestID string) *PingResponse {
 	return &PingResponse{
 		APIResponse: APIResponse{
 			RequestID:  requestID,
 			HTTPStatus: http.StatusOK,
-			Errors:     make([]error, 0)},
+			Errors:     make([]Error, 0)},
 		Message: ""}
 }
 
@@ -134,7 +147,7 @@ func List(params *ListParams, response *PingResponse) {
 	err := db.QueryRowx("SELECT message FROM ping LIMIT 1").StructScan(&row)
 	if err != nil {
 		log.Printf("RequestID=%v Ping::List query error: %v", params.RequestID, err)
-		response.Errors = append(response.Errors, err)
+		response.Errors = append(response.Errors, Error{ErrorCodeInternalServerError, err.Error()})
 		response.HTTPStatus = http.StatusInternalServerError
 		return
 	}
