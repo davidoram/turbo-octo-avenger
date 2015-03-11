@@ -64,7 +64,7 @@ type ListParams struct {
 //
 // Returns error or nil
 func ParseAPIParameters(r *http.Request, p *APIParams) error {
-	log.Printf("RequestID=%v ParseAPIParameters %v", context.MustGetRequestId(r), r.Header)
+	log.Printf("severity=DEBUG RequestID=%v ParseAPIParameters %v", context.MustGetRequestId(r), r.Header)
 	if apiKey, present := r.Header["X-Apikey"]; present {
 		if key, err := uuid.ParseHex(apiKey[0]); err == nil {
 			p.APIKey = key.String()

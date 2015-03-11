@@ -4,6 +4,7 @@ import (
 	_ "fmt"
 	"github.com/davidoram/turbo-octo-avenger/middleware"
 	"github.com/davidoram/turbo-octo-avenger/services"
+	"github.com/davidoram/turbo-octo-avenger/services/userservice"
 	"github.com/gorilla/context"
 	_ "github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
@@ -25,8 +26,9 @@ func main() {
 	router := httprouter.New()
 
 	registerPingService(router)
+	registerUserService(router)
 	port := ":8080"
-	log.Printf("Listening on %v", port)
+	log.Printf("severity=INFO port=%v", port)
 	log.Fatal(http.ListenAndServe(port, router))
 }
 
@@ -51,5 +53,19 @@ func registerPingService(router *httprouter.Router) {
 		middleware.BasicLogger,
 		middleware.RequestTimer).Then(services.PingServiceListHandler())
 	router.Handler(verb, path, listChain)
-	log.Printf("%s %s", verb, path)
+	log.Printf("severity=INFO action='added route' verb=%s path='%s'", verb, path)
+}
+
+func registerUserService(router *httprouter.Router) {
+
+	verb := "POST"
+	path := "/users"
+	listChain := alice.New(
+		context.ClearHandler,
+		middleware.PanicHandler,
+		middleware.RequestIDInjector,
+		middleware.BasicLogger,
+		middleware.RequestTimer).Then(userservice.UserServiceInsertHandler())
+	router.Handler(verb, path, listChain)
+	log.Printf("severity=INFO action='added route' verb=%s path='%s'", verb, path)
 }

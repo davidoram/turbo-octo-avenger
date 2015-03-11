@@ -19,6 +19,13 @@ func MustGetRequestId(r *http.Request) string {
 	panic("RequestID not yet set in context")
 }
 
+func GetRequestId(r *http.Request) string {
+	if rv := context.Get(r, RequestIDKey); rv != nil {
+		return rv.(string)
+	}
+	return "RequestID not yet set in context"
+}
+
 func SetRequestID(r *http.Request, val string) {
 	context.Set(r, RequestIDKey, val)
 }

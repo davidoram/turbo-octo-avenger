@@ -15,7 +15,7 @@ func RequestTimer(next http.Handler) http.Handler {
 		start := time.Now()
 		defer func() {
 			millis := int64((time.Now().Sub(start)) / time.Millisecond)
-			log.Printf("RequestId=%v, Duration_ms=%v\n", context.MustGetRequestId(r), millis)
+			log.Printf("severity=INFO RequestId=%v, Duration_ms=%v", context.MustGetRequestId(r), millis)
 		}()
 
 		next.ServeHTTP(w, r)

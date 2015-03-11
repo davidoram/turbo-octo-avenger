@@ -17,16 +17,14 @@ import (
 //
 func PingServiceListHandler() http.Handler {
 	var f http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("RequestID=%v PingServiceListHandler", context.MustGetRequestId(r))
+		log.Printf("severity=INFO RequestID=%v PingServiceListHandler", context.MustGetRequestId(r))
 		var params = ListParams{}
 		var response = NewPingResponse(context.MustGetRequestId(r))
 		var err = ParseListParameters(r, &params)
 		if err == nil {
 			List(&params, response)
 		} else {
-			log.Printf("RequestID=%v adding error. %v", context.MustGetRequestId(r), len(response.Errors))
 			response.Errors = append(response.Errors, Error{ErrorCodeBadRequest, err.Error()})
-			log.Printf("RequestID=%v added error. %v %v", context.MustGetRequestId(r), len(response.Errors), response.Errors)
 			response.HTTPStatus = http.StatusBadRequest
 		}
 		w.WriteHeader(response.HTTPStatus)
@@ -60,15 +58,16 @@ type PingRow struct {
 func List(params *ListParams, response *PingResponse) {
 
 	db := connect()
-	log.Printf("RequestID=%v Ping::List. db=%v", params.RequestID, db)
+	defer db.Close()
+	log.Printf("severity=DEBUG RequestID=%v Ping::List. db=%v", params.RequestID, db)
 	var row PingRow
 	err := db.QueryRowx("SELECT message FROM ping LIMIT 1").StructScan(&row)
 	if err != nil {
-		log.Printf("RequestID=%v Ping::List query error: %v", params.RequestID, err)
+		log.Printf("severity=ERROR RequestID=%v Ping::List query error: %v", params.RequestID, err)
 		response.Errors = append(response.Errors, Error{ErrorCodeInternalServerError, err.Error()})
 		response.HTTPStatus = http.StatusInternalServerError
 		return
 	}
-	log.Printf("RequestID=%v Ping::List query ok", params.RequestID)
+	log.Printf("severity=DEBUG RequestID=%v Ping::List query ok", params.RequestID)
 	response.Message = row.Message
 }
