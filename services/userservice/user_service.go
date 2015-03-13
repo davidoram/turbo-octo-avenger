@@ -96,9 +96,9 @@ func UserServiceInsertHandler() http.Handler {
 			response.Errors = append(response.Errors, services.Error{services.ErrorCodeBadRequest, err.Error()})
 			response.HTTPStatus = http.StatusBadRequest
 		}
+		log.Printf("severity=INFO RequestID=%v UserServiceInsertHandler response='%s'", context.MustGetRequestId(r), util.MustMarshalJSON(response))
 		w.WriteHeader(response.HTTPStatus)
 		w.Write(util.MustMarshalJSON(response))
-
 	}
 	return f
 }
@@ -122,11 +122,18 @@ func Insert(params *UserInsertParams, response *UserInsertResponse) {
 	response.User = params.User
 	err = db.QueryRow("INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id",
 		params.User.Email,
-		params.User.Password).Scan(&params.User.ID)
+		params.User.Password).Scan(&response.User.ID)
 	if err != nil {
 		log.Printf("severity=ERROR RequestID=%v User::Insert query error: %v", params.RequestID, err)
 		response.Errors = append(response.Errors, services.Error{services.ErrorCodeInternalServerError, err.Error()})
 		response.HTTPStatus = http.StatusInternalServerError
 		return
 	}
+	if response.User.ID == 0 {
+		log.Printf("severity=ERROR RequestID=%v User::Insert New ID not returned! ", params.RequestID)
+		response.Errors = append(response.Errors, services.Error{services.ErrorCodeInternalServerError, "Id not returned from insert"})
+		response.HTTPStatus = http.StatusInternalServerError
+		return
+	}
+	log.Printf("severity=INFO RequestID=%v User::Insert succeeded with id %v ", params.RequestID, response.User.ID)
 }

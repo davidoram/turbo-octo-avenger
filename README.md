@@ -65,4 +65,6 @@ Also these components are used:
 
 ## Siege testing
 
+
+Add users
 `$ siege -H "X-Apikey: 687e19ee-0848-47de-aa7c-eebed6f59c5c" -f post-user.siege` 
