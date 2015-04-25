@@ -37,7 +37,6 @@ func PingServiceListHandler() http.Handler {
 
 func connect() *sqlx.DB {
 	dbUrl, _ := config.DataBaseURL("development")
-	log.Printf("++++++++++++++++++++++severity=INFO port=%v", dbUrl)
 	return sqlx.MustConnect("postgres", dbUrl) //TODO should be read from somewhere
 }
 
