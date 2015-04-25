@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"encoding/json"
-	"github.com/davidoram/turbo-octo-avenger/context"
-	"github.com/davidoram/turbo-octo-avenger/services"
+	"github.com/davidamitchell/turbo-octo-avenger/context"
+	"github.com/davidamitchell/turbo-octo-avenger/services"
 	"log"
 	"net/http"
 	"runtime"

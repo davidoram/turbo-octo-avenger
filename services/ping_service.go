@@ -2,8 +2,8 @@ package services
 
 import (
 	_ "fmt"
-	"github.com/davidoram/turbo-octo-avenger/context"
-	"github.com/davidoram/turbo-octo-avenger/util"
+	"github.com/davidamitchell/turbo-octo-avenger/context"
+	"github.com/davidamitchell/turbo-octo-avenger/util"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
@@ -35,7 +35,7 @@ func PingServiceListHandler() http.Handler {
 }
 
 func connect() *sqlx.DB {
-	return sqlx.MustConnect("postgres", "postgres://davidoram:@localhost/turbo-octo-avenger-development?sslmode=disable")
+	return sqlx.MustConnect("postgres", "postgres://root:@localhost/turbo_octo_avenger_development?sslmode=disable")
 }
 
 // Response from a Ping List operation
