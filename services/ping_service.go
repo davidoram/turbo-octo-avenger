@@ -2,8 +2,8 @@ package services
 
 import (
 	_ "fmt"
-	"github.com/davidamitchell/turbo-octo-avenger/context"
-	"github.com/davidamitchell/turbo-octo-avenger/util"
+	"github.com/davidoram/turbo-octo-avenger/context"
+	"github.com/davidoram/turbo-octo-avenger/util"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
