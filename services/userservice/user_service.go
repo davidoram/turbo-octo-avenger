@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	_ "fmt"
+	"github.com/davidoram/turbo-octo-avenger/config"
 	"github.com/davidoram/turbo-octo-avenger/context"
 	"github.com/davidoram/turbo-octo-avenger/services"
 	"github.com/davidoram/turbo-octo-avenger/util"
@@ -104,8 +105,8 @@ func UserServiceInsertHandler() http.Handler {
 }
 
 func connect() *sqlx.DB {
-	return sqlx.MustConnect("postgres", "postgres://root:@localhost/turbo_octo_avenger_development?sslmode=disable")
-	// return sqlx.MustConnect("postgres", "postgres://root:root@localhost:5432/benchmarking"")
+	dbUrl, _ := config.DataBaseURL("development")
+	return sqlx.MustConnect("postgres", dbUrl) //TODO should be read from somewhere
 }
 
 // Row in users table
