@@ -2,9 +2,9 @@ package main
 
 import (
 	_ "fmt"
-	"github.com/davidamitchell/turbo-octo-avenger/middleware"
-	"github.com/davidamitchell/turbo-octo-avenger/services"
-	"github.com/davidamitchell/turbo-octo-avenger/services/userservice"
+	"github.com/davidoram/turbo-octo-avenger/middleware"
+	"github.com/davidoram/turbo-octo-avenger/services"
+	"github.com/davidoram/turbo-octo-avenger/services/userservice"
 	"github.com/gorilla/context"
 	_ "github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
