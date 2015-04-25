@@ -1,0 +1,7 @@
+development:
+    driver: postgres
+    open: user=root dbname=turbo_octo_avenger_development sslmode=disable host=localhost
+
+test:
+    driver: postgres
+    open: user=root dbname=turbo_octo_avenger_test sslmode=disable host=localhost
